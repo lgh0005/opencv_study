@@ -8,9 +8,12 @@
 #include <memory>
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
+using namespace std;
 
 // OpenCV
 #include <opencv2/opencv.hpp>
+using namespace cv;
 
 // Custom
 #include "Types.h"

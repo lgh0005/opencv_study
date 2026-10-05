@@ -187,7 +187,6 @@
   <ItemGroup>
     <ClInclude Include="CVLogger.h" />
     <ClInclude Include="CVProfiler.h" />
-    <ClInclude Include="CVWindow.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="pch.h" />
@@ -196,7 +195,6 @@
   <ItemGroup>
     <ClCompile Include="CVLogger.cpp" />
     <ClCompile Include="CVProfiler.cpp" />
-    <ClCompile Include="CVWindow.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
