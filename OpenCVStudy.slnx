@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="OpenCVStudy/OpenCVStudy.vcxproj" Id="dd489f19-22e4-4231-bd40-b7b2492a0b53" />
+</Solution>

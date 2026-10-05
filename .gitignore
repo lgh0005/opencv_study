@@ -1,0 +1,44 @@
+# Visual Studio local settings and caches
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.db-shm
+*.VC.db-wal
+*.VC.opendb
+ipch/
+
+# Project build output directories
+/Binaries/
+/Intermediate/
+[Dd]ebug/
+[Rr]elease/
+
+# C++ compiler and linker intermediate files
+*.obj
+*.pch
+*.pdb
+*.idb
+*.ilk
+*.ipdb
+*.iobj
+*.tlog
+*.lastbuildstate
+*.res
+*.exp
+*.log
+
+# OpenCV SDK installed locally (see README.md)
+/ThirdParty/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# OS-generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
