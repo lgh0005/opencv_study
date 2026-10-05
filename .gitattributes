@@ -1,0 +1,2 @@
+# Exclude third-party licenses and bundled data from GitHub language statistics.
+Licenses/** linguist-vendored
