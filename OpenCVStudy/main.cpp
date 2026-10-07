@@ -1,11 +1,6 @@
 #include "pch.h"
 #include "CVLogger.h"
 
-struct ContrastData
-{
-	Mat src;
-};
-
 Mat CalculateHist(const Mat& target)
 {
 	Mat hist;
@@ -18,14 +13,14 @@ Mat CalculateHist(const Mat& target)
 
 	calcHist
 	(
-		&target,     // 입력 영상
-		1,           // 입력 영상 개수
-		channels,    // 사용할 채널
-		Mat(),       // 마스크
-		hist,        // 출력 히스토그램
-		1,           // 히스토그램 차원 수
-		histSize,    // Bin 개수
-		ranges       // 픽셀 값 범위
+		&target,
+		1,
+		channels,
+		Mat(),
+		hist,
+		1,
+		histSize,
+		ranges
 	);
 
 	return hist;
@@ -38,13 +33,7 @@ Mat CreateHistImage(const Mat& hist)
 	const int histHeight = 400;
 
 	// 히스토그램 그래프를 그릴 흰색 배경 이미지 생성
-	Mat histImage
-	(
-		histHeight,
-		histWidth,
-		CV_8UC3,
-		Scalar(255, 255, 255)
-	);
+	Mat histImage(histHeight, histWidth, CV_8UC3, Scalar(255, 255, 255));
 
 	// 실제 히스토그램 값은 픽셀 개수이므로
 	// 그래프 높이에 맞게 정규화
@@ -69,91 +58,61 @@ Mat CreateHistImage(const Mat& hist)
 	return histImage;
 }
 
-Mat AdjustContrast(const Mat& src, float alpha)
+Mat EqualizeImage(const Mat& src)
 {
 	Mat dst;
 
-	/*
-		명암비 조절식
-
-		dst = src + (src - 128) * alpha
-
-		이를 정리하면,
-
-		dst = (1 + alpha) * src - 128 * alpha
-
-		convertTo()를 이용하면 연산 결과에
-		0 ~ 255 범위의 포화 연산도 적용된다.
-	*/
-
-	src.convertTo
-	(
-		dst,
-		CV_8UC1,
-		1.0 + alpha,
-		-128.0 * alpha
-	);
+	// 히스토그램 평활화
+	equalizeHist(src, dst);
 
 	return dst;
 }
 
-void UpdateContrast(int trackbarValue, void* userdata)
+void ShowScaled(const string& windowName, const Mat& image, double scale)
 {
-	ContrastData* data = static_cast<ContrastData*>(userdata);
+	// 실제 영상은 변경하지 않고 출력용 영상만 축소
+	Mat displayImage;
+	resize(image, displayImage, Size(), scale, scale, INTER_AREA);
 
-	// Trackbar의 0 ~ 200 값을
-	// alpha의 -1.0 ~ 1.0 범위로 변환
-	const float alpha = (trackbarValue - 100) / 100.0f;
-
-	// 명암비 조절
-	Mat dst = AdjustContrast(data->src, alpha);
-
-	// 변경된 영상의 히스토그램 계산
-	Mat hist = CalculateHist(dst);
-
-	// 히스토그램 시각화
-	Mat histImage = CreateHistImage(hist);
-
-	// 영상과 히스토그램 갱신
-	imshow("Lena - Grayscale", dst);
-	imshow("Lena - Histogram", histImage);
+	imshow(windowName, displayImage);
 }
 
 int main()
 {
+	// 디버거 도구 초기화
+	CVLogger::SetLogLevel(cv::utils::logging::LOG_LEVEL_WARNING);
+
 	// 이미지 불러오기
 	Mat img = imread("Resources/lena_std.tif", IMREAD_COLOR);
 	if (img.empty()) return -1;
 
 	// Grayscale 변환
-	Mat imgGray;
-	cvtColor(img, imgGray, COLOR_BGR2GRAY);
+	Mat src;
+	cvtColor(img, src, COLOR_BGR2GRAY);
 
-	// Callback에서 사용할 데이터
-	ContrastData data;
-	data.src = imgGray;
+	// 원본 영상의 히스토그램 계산
+	Mat srcHist = CalculateHist(src);
 
-	// 출력 Window 생성
-	namedWindow("Lena - Grayscale", WINDOW_AUTOSIZE);
-	namedWindow("Lena - Histogram", WINDOW_AUTOSIZE);
+	// 원본 영상의 히스토그램 시각화
+	Mat srcHistImage = CreateHistImage(srcHist);
 
-	// 명암비 조절 Trackbar 생성
-	createTrackbar
-	(
-		"Contrast",
-		"Lena - Grayscale",
-		nullptr,
-		200,
-		UpdateContrast,
-		&data
-	);
+	// 히스토그램 평활화
+	Mat dst = EqualizeImage(src);
 
-	// 중앙값 100
-	// alpha = 0.0이므로 원본 영상
-	setTrackbarPos("Contrast", "Lena - Grayscale", 100);
+	// 평활화된 영상의 히스토그램 계산
+	Mat dstHist = CalculateHist(dst);
 
-	// 최초 화면 출력
-	UpdateContrast(100, &data);
+	// 평활화된 영상의 히스토그램 시각화
+	Mat dstHistImage = CreateHistImage(dstHist);
+
+	// 출력 크기 비율
+	const double displayScale = 0.7;
+
+	// 출력
+	ShowScaled("Source - Grayscale", src, displayScale);
+	ShowScaled("Source - Histogram", srcHistImage, displayScale);
+	ShowScaled("Equalized - Grayscale", dst, displayScale);
+	ShowScaled("Equalized - Histogram", dstHistImage, displayScale);
 
 	waitKey(0);
 
